@@ -1,5 +1,8 @@
-{ 
+{
   "scripts": {
     "run": "node bot.js"
+  },
+  "dependencies": {
+    "mkdirp": "^0.5.1"
   }
 }
