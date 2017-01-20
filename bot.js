@@ -28,12 +28,11 @@ var dl_file = function (url, dest, finallyFn) {
 	});
 };
 
-// Main
+// setup
+const key = require('./key.json').key;
+const app = new Telegraf(key, { username: 'NeonMikaBot' })
 
-const token = '315764303:AAG_UfV0Mv-aMYeGxetKLCTRgXfJDk8BrJ4';
-
-const app = new Telegraf(token, { username: 'NeonMikaBot' })
-
+// context extension
 app.context.files = {
 	download: (ctx, file_id, finallyFn) => {
 		const filePromise = ctx.telegram.getFile(file_id);
@@ -43,55 +42,67 @@ app.context.files = {
 			//   file_size: 45815,
 			//   file_path: 'photo/file_5.jpg' }
 
-			const telegram_download_path = `https://api.telegram.org/file/bot${token}/${file_info.file_path}`;
+			const telegram_download_path = `https://api.telegram.org/file/bot${key}/${file_info.file_path}`;
 
 			dl_file(telegram_download_path, file_info.file_path, finallyFn);
 		});
 	}
 }
 
+// processing methods
+function processFile(file_id, ctx, next) {
+	return next().then(() => {
+
+		ctx.files.download(ctx, file_id, (e) => {
+			if (e) {
+				console.error(e);
+				ctx.reply(e);
+			} else {
+				ctx.reply('File saved on server');
+			}
+		});
+	});
+}
+
 // use
 app.use((ctx, next) => {
 	const start = new Date()
+	console.log('Context message: %s', JSON.stringify(ctx.message));
 	return next().then(() => {
-		const ms = new Date() - start
-		console.log('Response time %sms', ms)
+		const ms = new Date() - start;
+		console.log('Response time %sms', ms);
 	})
 })
 
 // on
 app.on('text', (ctx, next) => {
 	return next().then(() => {
-		ctx.reply(ctx.message);
+		ctx.reply("Received your message!");
 	})
 });
 
-app.on('photo', (ctx, next) => {
-	return next().then(() => {
-		// console.log(ctx.message.photo);
-		const largeImageInfo = ctx.message.photo[ctx.message.photo.length - 1];
-		ctx.reply(largeImageInfo);
+app.on('document', (ctx, next) => {
+	return processFile(ctx.message.document.file_id, ctx, next)
+})
 
-		ctx.files.download(ctx, largeImageInfo.file_id, (e) => {
-			if (e) {
-				console.error(e);
-			}
-		});
-	});
+app.on('photo', (ctx, next) => {
+	const largeImageInfo = ctx.message.photo[ctx.message.photo.length - 1];
+	console.log('Photo info: %s', JSON.stringify(largeImageInfo));
+
+	return processFile(largeImageInfo.file_id, ctx, next);
 });
 
 // hears
-app.hears('hi', (ctx, next) => {
+app.hears('Hey Picture-Bot', (ctx, next) => {
 	return next().then(() => {
-		ctx.reply('Hey there!');
+		ctx.reply(`Hey ${ctx.message.from.username}!`);
 	});
 })
 
 // command
 app.command('start', (ctx, next) => {
 	return next().then(() => {
-		console.log('start', ctx.from)
-		ctx.reply('Welcome!')
+		ctx.reply('No need to start me ;)')
 	});
 });
 

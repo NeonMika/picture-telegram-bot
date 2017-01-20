@@ -3,6 +3,7 @@
     "run": "node bot.js"
   },
   "dependencies": {
-    "mkdirp": "^0.5.1"
+    "mkdirp": "^0.5.1",
+    "telegraf": "^3.6.4"
   }
 }
