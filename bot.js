@@ -29,6 +29,8 @@ var dl_file = function (url, dest, finallyFn) {
 };
 
 // setup
+const config = require('./config.json');
+
 const key = require('./key.json').key;
 const app = new Telegraf(key, { username: 'NeonMikaBot' })
 
@@ -44,7 +46,7 @@ app.context.files = {
 
 			const telegram_download_path = `https://api.telegram.org/file/bot${key}/${file_info.file_path}`;
 
-			dl_file(telegram_download_path, file_info.file_path, finallyFn);
+			dl_file(telegram_download_path, path.join(config.dest_folder, file_info.file_id + "." + file_info.file_path.split('.').pop()), finallyFn);
 		});
 	}
 }
@@ -58,7 +60,9 @@ function processFile(file_id, ctx, next) {
 				console.error(e);
 				ctx.reply(e);
 			} else {
-				ctx.reply('File saved on server');
+				if(config.responses) {
+				  ctx.reply('File saved on server');
+				}
 			}
 		});
 	});
@@ -77,7 +81,9 @@ app.use((ctx, next) => {
 // on
 app.on('text', (ctx, next) => {
 	return next().then(() => {
-		ctx.reply("Received your message!");
+		if(responses) {
+		  ctx.reply("Received your message!");
+		}
 	})
 });
 
@@ -95,14 +101,18 @@ app.on('photo', (ctx, next) => {
 // hears
 app.hears('Hey Picture-Bot', (ctx, next) => {
 	return next().then(() => {
-		ctx.reply(`Hey ${ctx.message.from.username}!`);
+		if(config.responses) {
+		  ctx.reply(`Hey ${ctx.message.from.username}!`);
+		}
 	});
 })
 
 // command
 app.command('start', (ctx, next) => {
 	return next().then(() => {
-		ctx.reply('No need to start me ;)')
+		if(config.responses) {
+		  ctx.reply('No need to start me ;)');
+		}
 	});
 });
 
