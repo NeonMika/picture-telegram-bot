@@ -1,0 +1,14 @@
+[Unit]
+Description=NeonMika Picture Server
+
+[Service]
+Type=simple
+WorkingDirectory=/your/copy/of/picture-telegram-bot
+ExecStart=/usr/bin/npm run run
+Restart=on-abnormal
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+
+

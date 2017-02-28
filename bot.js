@@ -81,7 +81,7 @@ app.use((ctx, next) => {
 // on
 app.on('text', (ctx, next) => {
 	return next().then(() => {
-		if(responses) {
+		if(config.responses) {
 		  ctx.reply("Received your message!");
 		}
 	})

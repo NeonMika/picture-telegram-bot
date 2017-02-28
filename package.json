@@ -4,6 +4,6 @@
   },
   "dependencies": {
     "mkdirp": "^0.5.1",
-    "telegraf": "^3.6.4"
+    "telegraf": "^3.6.6"
   }
 }
